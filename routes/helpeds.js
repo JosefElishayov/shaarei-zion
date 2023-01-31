@@ -1,4 +1,5 @@
 const express= require("express");
+const { auth } = require("../middlewares/auth");
 const { validateHelped, HelpedModel } = require("../models/helpedModel");
 const router = express.Router();
 
