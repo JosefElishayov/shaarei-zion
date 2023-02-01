@@ -7,7 +7,7 @@ exports.auth = (req,res,next) => {
   }
   try{
     // בודק אם הטוקן תקין או בתקוף
-    let decodeToken = jwt.verify(token,"monkeysSecret");
+    let decodeToken = jwt.verify(token,"shareyZion7");
     // req -> יהיה זהה בכל הפונקציות שמורשרות באותו ראוטר
     req.tokenData = decodeToken;
     // לעבור לפונקציה הבאה בשרשור
@@ -24,7 +24,7 @@ exports.authAdmin = (req,res,next) => {
   }
   try{
     // בודק אם הטוקן תקין או בתקוף
-    let decodeToken = jwt.verify(token,"monkeysSecret");
+    let decodeToken = jwt.verify(token,"shareyZion7");
     if (decodeToken.role!="admin"){
       return res.status(401).json({msg:"Just admin can be in this endpoint"
     })
@@ -45,7 +45,7 @@ exports.authBranchManager = (req,res,next) => {
   }
   try{
     // בודק אם הטוקן תקין או בתקוף
-    let decodeToken = jwt.verify(token,"monkeysSecret");
+    let decodeToken = jwt.verify(token,"shareyZion7");
     if (decodeToken.role!="branchManager"){
       return res.status(401).json({msg:"Just Branch Manager can be in this endpoint"
     })

@@ -23,7 +23,7 @@ exports.UserModel = mongoose.model("users", userSchema);
 // פונקציה שמייצרת טוקן שמכיל את האיי די של המשתמש
 // תקף ל 10 שעות
 exports.createToken = (user_id,role) => {
-  let token = jwt.sign({_id:user_id,role:role }, "monkeysSecret", { expiresIn: "600mins" })
+  let token = jwt.sign({_id:user_id,role:role }, "shareyZion7", { expiresIn: "600mins" })
   return token;
 }
 
