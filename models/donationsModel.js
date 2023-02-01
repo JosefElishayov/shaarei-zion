@@ -4,7 +4,6 @@ const Joi = require("joi");
 let donationsSchema = new mongoose.Schema({
 
 Donations_Name:String,
-cat_url:String,
 info:String,
 price:Number,
 img_url:String,
@@ -17,7 +16,6 @@ exports.DonationsModel = mongoose.model("donations",donationsSchema)
 exports.validateDonation = (_reqBody) => {
 let joiSchema = Joi.object({
 Donations_Name:Joi.string().min(2).max(100).required(),
-cat_url:Joi.string().min(1).max(150).required(),
 info:Joi.string().min(2).max(1500).required(),
 price:Joi.number().min(1).max(100).required(),
 img_url:Joi.string().min(1).max(999).allow(null,""),
