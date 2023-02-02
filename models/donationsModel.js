@@ -3,7 +3,7 @@ const Joi = require("joi");
 
 let donationsSchema = new mongoose.Schema({
 
-Donations_Name:String,
+donations_Name:String,
 info:String,
 price:Number,
 img_url:String,
