@@ -30,7 +30,16 @@ router.get("/", async(req,res) => {
       res.status(502).json({err})
     }
   })
-  
+  router.get("/single/:id", async(req,res) => {
+    try{
+      let data = await BrunchesModel.findOne({_id:req.params.id})
+      res.json(data);
+    }
+    catch(err){
+      console.log(err);
+      res.status(502).json({err})
+    }
+  })
   router.put("/:id",authBranchManager, async(req,res) => {
     let validBody = validateBrunches(req.body);
     if(validBody.error){

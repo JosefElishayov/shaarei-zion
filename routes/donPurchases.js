@@ -26,21 +26,7 @@ router.post("/", auth, async (req, res) => {
         res.status(502).json({ err })
     }
 })
-router.put("/:id", authAdmin, async (req, res) => {
-    let validBody = validateDonPurchase(req.body);
-    if (validBody.error) {
-        return res.status(400).json(validBody.error.details);
-    }
-    try {
-        let id = req.params.id;
-        let data = await DonPurchaseModel.updateOne({ _id: id }, req.body);
-        res.json(data);
-    }
-    catch (err) {
-        console.log(err);
-        res.status(502).json({ err })
-    }
-})
+
 router.delete("/:id", authAdmin, async (req, res) => {
     try {
         let id = req.params.id;
