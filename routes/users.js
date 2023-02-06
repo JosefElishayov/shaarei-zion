@@ -68,7 +68,8 @@ router.post("/logIn", async(req,res) => {
       return res.status(401).json({msg:"Password Worng."})
     }
     // לשלוח טוקן
-    let token = createToken(user._id,user.role)
+    let token = createToken(user._id,user.role,user.name
+      )
     // res.json({token:token})
     res.json({token})
   }

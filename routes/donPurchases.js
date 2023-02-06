@@ -1,7 +1,10 @@
 const express = require("express");
 const { auth, authAdmin } = require("../middlewares/auth");
 const { validateDonPurchase, DonPurchaseModel } = require("../models/donPurchasModel");
+
 const { UserModel } = require("../models/userModel");
+
+
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -18,9 +21,11 @@ router.post("/", auth, async (req, res) => {
         let user = await UserModel.findOne({_id:req.tokenData._id})
         purchase.user_id = user._id;
         purchase.user_name = user.name;
+
+        purchase.user_id = req.tokenData._id;
+        purchase.user_name = req.tokenData.name;
         purchase.token_id="1111";
         await purchase.save()
-
         res.status(201).json(purchase);
     }
     catch (err) {

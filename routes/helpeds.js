@@ -1,7 +1,10 @@
 const express= require("express");
 const { auth, authAdmin } = require("../middlewares/auth");
 const { validateHelped, HelpedModel } = require("../models/helpedModel");
+
 const { UserModel } = require("../models/userModel");
+
+
 const router = express.Router();
 
 router.get("/", async(req,res) => {
@@ -15,9 +18,14 @@ router.post("/", auth,async(req,res) => {
     }
     try{
       let helped = new HelpedModel(req.body);
+
       let user = await UserModel.findOne({_id:req.tokenData._id})
       helped.user_id = user._id;
       helped.user_name= user.name;
+
+      helped.user_id = req.tokenData._id;
+      helped.user_name= req.tokenData.name;
+
       await helped.save()
      
       res.status(201).json(helped);
