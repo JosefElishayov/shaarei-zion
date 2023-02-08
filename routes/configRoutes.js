@@ -5,6 +5,7 @@ const brunchesR=require("./branches");
 const donationR=require("./donations");
 const helpedsR=require("./helpeds");
 const donPurchasesR=require("./donPurchases");
+const uploadR = require("./upload");
 
 
 
@@ -15,7 +16,7 @@ exports.routesInit = (app) => {
   app.use("/branches",brunchesR);
   app.use("/donations",donationR);
   app.use("/helpeds",helpedsR);
-  app.use("/purchase",donPurchasesR
-  );
+  app.use("/purchase",donPurchasesR);
+  app.use("/upload",uploadR);
 
 }

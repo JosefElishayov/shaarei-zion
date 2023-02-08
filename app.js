@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const http = require("http");
+const fileUpload = require("express-fileupload")
 // מודול שיודע לפתור את בעיית האבטחת של הקורס
 // שלא ניתן בברירת מחדל לשלוח מדומיין א' בקשה לדומיין ב
 const cors = require("cors");
@@ -13,7 +14,9 @@ const app = express();
 
 // נותן אפשרות לכל דומיין לעשות בקשות לשרת שלנו
 app.use(cors());
-
+app.use(fileUpload({
+    limits:{fileSize: 1024 * 1024 * 5}
+  }));
 // מגדיר לשרת שהוא יכול לקבל מידע מסוג ג'ייסון בבאדי בבקשות שהם לא גט
 app.use(express.json());
 

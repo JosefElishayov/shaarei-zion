@@ -1,6 +1,6 @@
 const express= require("express");
 const bcrypt = require("bcrypt");
-const {auth} = require("../middlewares/auth")
+const {auth, authAdmin} = require("../middlewares/auth")
 const {UserModel,validateUser, validateLogin, createToken} = require("../models/userModel")
 
 const router = express.Router();
@@ -50,7 +50,24 @@ router.post("/", async(req,res) => {
     res.status(502).json({err})
   }
 })
-
+router.patch("/role/", authAdmin, async(req,res) => {
+    try{
+      
+      let user_id = req.query.user_id;
+      let role = req.query.role;
+      // לא מאפשר למשתמש עצמו לשנות את התפקיד שלו
+      // או לשנות את הסופר אדמין
+      if(user_id == req.tokenData._id || user.role == "admin"){
+        return res.status(401).json({msg:"You try to change yourself or the superadmin , anyway you are stupid!"})
+      }
+      let data = await UserModel.updateOne({_id:user_id},{role:role})
+      res.json(data);
+    }
+    catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  })
 router.post("/logIn", async(req,res) => {
   let validBody = validateLogin(req.body);
   if(validBody.error){
