@@ -1,8 +1,7 @@
 const express= require("express");
 const bcrypt = require("bcrypt");
 const {auth, authAdmin} = require("../middlewares/auth")
-const {UserModel,validateUser, validateLogin, createToken} = require("../models/userModel")
-
+const {UserModel,validateUser, validateLogin, createToken, validateEditUser} = require("../models/userModel")
 const router = express.Router();
 
 // מאזין לכניסה לראוט של העמוד בית לפי מה שנקבע לראוטר
@@ -11,7 +10,31 @@ router.get("/", async(req,res) => {
   res.json({msg:"Users work"});
 })
 
-
+router.get("/usersList",authAdmin, async(req,res) => {
+  let perPage = Math.min(req.query.perPage, 20) || 20;
+  let page = req.query.page - 1 || 0;
+  let sort = req.query.sort || "_id"
+  let reverse = req.query.reverse == "yes" ? 1 : -1
+ 
+  try {
+    let findDb={};
+    const search = req.query.s;
+    if(search){
+      const searchExp = new RegExp(search,"i")
+      findDb = {$or:[{name:searchExp},{email:searchExp},{phone:searchExp},{address:searchExp},{role:searchExp}]}
+    }
+    let data = await UserModel
+      .find(findDb)
+      .limit(perPage)
+      .skip(page * perPage)
+      .sort({ [sort]: reverse })
+    res.json(data);
+  }
+  catch (err) {
+    console.log(err);
+    res.status(502).json({ err })
+  }
+})
 
 // מחזיר למשתמש את הפרטים שלו
 router.get("/userInfo", auth , async(req,res) => {
@@ -25,7 +48,15 @@ router.get("/userInfo", auth , async(req,res) => {
   }
 })
 
-
+router.get("/checkToken", auth,async(req,res) => {
+  try{
+    res.json(req.tokenData);
+  }
+  catch(err){
+    console.log(err);
+    res.status(502).json({err})
+  }
+})
 // sign up
 router.post("/", async(req,res) => {
   let validBody = validateUser(req.body);
@@ -50,22 +81,34 @@ router.post("/", async(req,res) => {
     res.status(502).json({err})
   }
 })
-router.patch("/role/", authAdmin, async(req,res) => {
+router.patch("/changeRole/:id/:role", authAdmin , async(req,res) => {
+  try{
+    const id = req.params.id;
+    const newRole = req.params.role;
+    if(id == req.tokenData._id || id == "6421f7da12f5ea125d82104d"){
+      return res.status(401).json({err:"You cant change your user role or the super admin"})
+    }
+    const data = await UserModel.updateOne({_id:id},{role:newRole})
+    res.json(data);
+  }
+  catch(err){
+    console.log(err);
+    res.status(502).json({err})
+  }
+})
+  router.put("/:id",auth, async(req,res) => {
+    let validBody = validateEditUser(req.body);
+    if(validBody.error){
+      return res.status(400).json(validBody.error.details);
+    }
     try{
-      
-      let user_id = req.query.user_id;
-      let role = req.query.role;
-      // לא מאפשר למשתמש עצמו לשנות את התפקיד שלו
-      // או לשנות את הסופר אדמין
-      if(user_id == req.tokenData._id || user.role == "admin"){
-        return res.status(401).json({msg:"You try to change yourself or the superadmin , anyway you are stupid!"})
-      }
-      let data = await UserModel.updateOne({_id:user_id},{role:role})
+      let id = req.params.id;
+      let data = await UserModel.updateOne({_id:id},req.body);
       res.json(data);
     }
-    catch (err) {
+    catch(err){
       console.log(err);
-      res.status(500).json(err);
+      res.status(502).json({err})
     }
   })
 router.post("/logIn", async(req,res) => {
@@ -85,16 +128,13 @@ router.post("/logIn", async(req,res) => {
       return res.status(401).json({msg:"Password Worng."})
     }
     // לשלוח טוקן
-    let token = createToken(user._id,user.role,user.name
-      )
-    // res.json({token:token})
-    res.json({token})
+    let token = createToken(user._id,user.role )
+    
+    res.json({token,role:user.role})
   }
   catch(err){
     console.log(err);
     res.status(502).json({err})
   }
 })
-
-
 module.exports = router;

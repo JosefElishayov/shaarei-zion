@@ -1,19 +1,24 @@
 const express= require("express");
-const { authBranchManager, authAdmin } = require("../middlewares/auth");
+const { authBranchManager, authAdmin, auth } = require("../middlewares/auth");
 const { validateBrunches, BrunchesModel } = require("../models/brancheModel");
+const { UserModel } = require("../models/userModel");
 const router = express.Router();
 
 
 router.get("/", async(req,res) => {
-  let perPage = Math.min(req.query.perPage, 20) || 5;
+  let perPage = Math.min(req.query.perPage, 20) || 100;
   let page = req.query.page - 1 || 0;
   let sort = req.query.sort || "_id"
-  // אם שווה יס יציג מהקטן לגדול ובברירת מחדל מהגדול לקטן
   let reverse = req.query.reverse == "yes" ? 1 : -1;
   let user_id =req.query.user_id
+  const search = req.query.s;
   try {
     let findDb={};
     if(user_id){findDb={user_id}}
+    else if(search){
+      const searchExp = new RegExp(search,"i")
+      findDb = {$or:[{brunch_name:searchExp},{manager:searchExp},{phone:searchExp},{address:searchExp},{info:searchExp},{description:searchExp}]}
+    }
     let data = await BrunchesModel
       .find(findDb)
       // מגביל את כמות הרשומות המצוגות בשאילתא
@@ -58,7 +63,7 @@ router.get("/", async(req,res) => {
       res.status(502).json({err})
     }
   })
-  router.put("/:id",authBranchManager, async(req,res) => {
+  router.put("/:id",auth, async(req,res) => {
     let validBody = validateBrunches(req.body);
     if(validBody.error){
       return res.status(400).json(validBody.error.details);
@@ -85,33 +90,21 @@ router.get("/", async(req,res) => {
       res.status(502).json({err})
     }
   })
-  // ?user_id= &role=
-// משנה תפקיד של משתמש
-// router.patch("/role/", authAdmin, async(req,res) => {
-//   try{
-//     // ישנה את הרול של המשתמש שבקווארי של היוזר איי די
-//     // לערך שנמצא בקווארי של רול
-//     let user_id = req.query.user_id;
-//     let role = req.query.role;
-//     // לא מאפשר למשתמש עצמו לשנות את התפקיד שלו
-//     // או לשנות את הסופר אדמין
-//     if(user_id == req.tokenData._id || user_id == "63b13b2750267011bebf32be"){
-//       return res.status(401).json({msg:"You try to change yourself or the superadmin , anyway you are stupid!"})
-//     }
-//     let data = await UserModel.updateOne({_id:user_id},{role:role})
-//     res.json(data);
-//   }
-//   catch (err) {
-//     console.log(err);
-//     res.status(500).json(err);
-//   }
-// })
+ 
   module.exports = router;
 
 
 module.exports = router;
 
+// const { v4: uuidv4 } = require('uuid');
 
+// const id = uuidv4(); // Generates a random UUID
+
+// const { v4: uuidv4 } = require('uuid');
+
+// const id = uuidv4(); // Generates a random UUID
+
+// console.log(id);
 
 
 

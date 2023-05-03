@@ -12,6 +12,8 @@ require("./db/mongoConnect");
 
 const app = express();
 
+
+
 // נותן אפשרות לכל דומיין לעשות בקשות לשרת שלנו
 app.use(cors());
 app.use(fileUpload({
