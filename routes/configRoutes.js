@@ -9,6 +9,7 @@ const uploadR = require("./upload");
 
 
 
+
 exports.routesInit = (app) => {
   app.use("/",indexR);
   app.use("/users",usersR);
@@ -18,5 +19,6 @@ exports.routesInit = (app) => {
   app.use("/helpeds",helpedsR);
   app.use("/purchase",donPurchasesR);
   app.use("/upload",uploadR);
+  
 
 }

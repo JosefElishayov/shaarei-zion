@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   phone:String,
   address:String,
   editBranch:{
-    type: String,default:""
+    type: String,default:"לא עורך"
   },
   date_created: {
     type: Date, default: Date.now

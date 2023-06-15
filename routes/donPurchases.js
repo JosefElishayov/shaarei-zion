@@ -1,6 +1,6 @@
 const express = require("express");
 const { auth, authAdmin } = require("../middlewares/auth");
-const { validateDonPurchase, DonPurchaseModel } = require("../models/donPurchasModel");
+const { validateDonPurchase, DonPurchaseModel, validateDonPurchaseInside, validateDonPurchaseOut } = require("../models/donPurchasModel");
 
 const { UserModel } = require("../models/userModel");
 
@@ -37,7 +37,7 @@ router.get("/", async(req,res) => {
   })
 
 router.post("/", auth, async (req, res) => {
-    let validBody = validateDonPurchase(req.body);
+    let validBody = validateDonPurchaseInside(req.body);
     if (validBody.error) {
         return res.status(400).json(validBody.error.details);
     }
@@ -46,9 +46,10 @@ router.post("/", auth, async (req, res) => {
         let user = await UserModel.findOne({_id:req.tokenData._id})
         purchase.user_id = user._id;
         purchase.user_name = user.name;
-
-        purchase.user_id = req.tokenData._id;
-        purchase.user_name = req.tokenData.name;
+        purchase.phone = user.phone;
+        purchase.email = user.email;
+      
+        purchase.user_name = user.name;
         purchase.token_id="1111";
         await purchase.save()
         res.status(201).json(purchase);
@@ -58,7 +59,21 @@ router.post("/", auth, async (req, res) => {
         res.status(502).json({ err })
     }
 })
-
+router.post("/out", async (req, res) => {
+  let validBody = validateDonPurchaseOut(req.body);
+  if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+  }
+  try {
+      let purchase = new DonPurchaseModel(req.body);
+      await purchase.save()
+      res.status(201).json(purchase);
+  }
+  catch (err) {
+      console.log(err);
+      res.status(502).json({ err })
+  }
+})
 router.delete("/:id", authAdmin, async (req, res) => {
     try {
         let id = req.params.id;

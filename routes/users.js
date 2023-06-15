@@ -15,7 +15,6 @@ router.get("/usersList",authAdmin, async(req,res) => {
   let page = req.query.page - 1 || 0;
   let sort = req.query.sort || "_id"
   let reverse = req.query.reverse == "yes" ? 1 : -1
- 
   try {
     let findDb={};
     const search = req.query.s;
@@ -47,7 +46,17 @@ router.get("/userInfo", auth , async(req,res) => {
     res.status(502).json({err})
   }
 })
-
+router.get("/count", async(req,res) => {
+  let perPage = Math.min(req.query.perPage, 20) || 10;
+  try{
+    let data = await UserModel.countDocuments(perPage);
+    res.json({count:data,pages:Math.ceil(data/perPage)})
+  }
+  catch(err){
+    console.log(err);
+    res.status(502).json({err})
+  }
+})
 router.get("/checkToken", auth,async(req,res) => {
   try{
     res.json(req.tokenData);
@@ -89,6 +98,18 @@ router.patch("/changeRole/:id/:role", authAdmin , async(req,res) => {
       return res.status(401).json({err:"You cant change your user role or the super admin"})
     }
     const data = await UserModel.updateOne({_id:id},{role:newRole})
+    res.json(data);
+  }
+  catch(err){
+    console.log(err);
+    res.status(502).json({err})
+  }
+})
+router.patch("/changeEdit/:id/:editBranch", authAdmin , async(req,res) => {
+  try{
+    const id = req.params.id;
+    const newEdit = req.params.editBranch;
+    const data = await UserModel.updateOne({_id:id},{editBranch:newEdit})
     res.json(data);
   }
   catch(err){

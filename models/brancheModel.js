@@ -6,6 +6,7 @@ let schema = new mongoose.Schema({
 brunch_name:String,
 address:String,
 images:Array,
+imgHeder:String,
 manager:String,
 news:Array,
 map:{
@@ -23,6 +24,7 @@ let joiSchema = Joi.object({
 brunch_name:Joi.string().min(1).max(999).required(),
 address:Joi.string().min(1).max(999).required(),
 images:Joi.array().min(0).max(999).allow(null,""),
+imgHeder:Joi.string().min(0).max(999).allow(null,""),
 manager:Joi.string().min(1).max(999).required(),
 map:Joi.object().min(1).max(999).required(),
 news:Joi.array().min(1).max(999).allow(null,""),

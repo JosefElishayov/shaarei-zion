@@ -44,10 +44,7 @@ router.post("/", auth, async (req, res) => {
     let user = await UserModel.findOne({ _id: req.tokenData._id })
     helped.user_name = user.name;
     helped.user_id = req.tokenData._id;
-    
-
     await helped.save()
-
     res.status(201).json(helped);
   }
   catch (err) {

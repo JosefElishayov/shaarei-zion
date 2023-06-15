@@ -3,9 +3,59 @@ const { authAdmin } = require("../middlewares/auth");
 const { validateDonation, DonationsModel } = require("../models/donationsModel");
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-    res.json({ msg: "Api Work Donation" });
-})
+router.get("/", async(req,res) => {
+    let perPage = Math.min(req.query.perPage, 20) || 10;
+    let page = req.query.page - 1 || 0;
+    let sort = req.query.sort || "_id"
+    let reverse = req.query.reverse == "yes" ? 1 : -1;
+    let user_id =req.query.user_id
+    const search = req.query.s;
+    try {
+      let findDb={};
+      if(user_id){findDb={user_id}}
+      else if(search){
+        const searchExp = new RegExp(search,"i")
+        findDb = {$or:[{donations_Name:searchExp},{info:searchExp}]}
+      }
+      let data = await DonationsModel
+        .find(findDb)
+        // מגביל את כמות הרשומות המצוגות בשאילתא
+        .limit(perPage)
+        // skip -> כמה רשומות לדלג
+        .skip(page * perPage)
+        // sort:{prop} 1 -> מהקטן לגדול , and -1 מהגדול לקטן
+        // [] -> אומר לו לאסוף את המשתנה בסורט ולא לקחת אותו כמאפיין
+        // reverse -> אחד או מינוס אחד
+        .sort({ [sort]: reverse })
+      res.json(data);
+    }
+    catch (err) {
+      console.log(err);
+      res.status(502).json({ err })
+    }
+  })
+  router.get("/count", async(req,res) => {
+    let perPage = Math.min(req.query.perPage, 20) || 10;
+    try{
+      let data = await DonationsModel.countDocuments(perPage);
+
+      res.json({count:data,pages:Math.ceil(data/perPage)})
+    }
+    catch(err){
+      console.log(err);
+      res.status(502).json({err})
+    }
+  })
+  router.get("/single/:id", async(req,res) => {
+    try{
+      let data = await DonationsModel.findOne({donations_Name:req.params.id})
+      res.json(data);
+    }
+    catch(err){
+      console.log(err);
+      res.status(502).json({err})
+    }
+  })
 router.post("/", authAdmin, async (req, res) => {
     let validBody = validateDonation(req.body);
     if (validBody.error) {

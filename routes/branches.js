@@ -2,11 +2,12 @@ const express= require("express");
 const { authBranchManager, authAdmin, auth } = require("../middlewares/auth");
 const { validateBrunches, BrunchesModel } = require("../models/brancheModel");
 const { UserModel } = require("../models/userModel");
+const { date } = require("joi/lib");
 const router = express.Router();
 
 
 router.get("/", async(req,res) => {
-  let perPage = Math.min(req.query.perPage, 20) || 100;
+  let perPage = Math.min(req.query.perPage, 20) || 10;
   let page = req.query.page - 1 || 0;
   let sort = req.query.sort || "_id"
   let reverse = req.query.reverse == "yes" ? 1 : -1;
@@ -17,7 +18,7 @@ router.get("/", async(req,res) => {
     if(user_id){findDb={user_id}}
     else if(search){
       const searchExp = new RegExp(search,"i")
-      findDb = {$or:[{brunch_name:searchExp},{manager:searchExp},{phone:searchExp},{address:searchExp},{info:searchExp},{description:searchExp}]}
+      findDb = {$or:[{brunch_name:searchExp},{manager:searchExp},{phone:searchExp},{address:searchExp},{info:searchExp},{description:searchExp},{mews:searchExp}]}
     }
     let data = await BrunchesModel
       .find(findDb)
@@ -25,9 +26,7 @@ router.get("/", async(req,res) => {
       .limit(perPage)
       // skip -> כמה רשומות לדלג
       .skip(page * perPage)
-      // sort:{prop} 1 -> מהקטן לגדול , and -1 מהגדול לקטן
-      // [] -> אומר לו לאסוף את המשתנה בסורט ולא לקחת אותו כמאפיין
-      // reverse -> אחד או מינוס אחד
+
       .sort({ [sort]: reverse })
     res.json(data);
   }
@@ -36,7 +35,29 @@ router.get("/", async(req,res) => {
     res.status(502).json({ err })
   }
 })
+router.get("/all", async(req,res) => {
+  try {
+    let data = await BrunchesModel.find(req.body)
+  res.json(data)
+  } catch (error) {
+    console.log(error);
+    res.status(502).json({ error })
+  }
   
+})
+router.get("/count", async(req,res) => {
+  let perPage = Math.min(req.query.perPage, 20) || 10;
+  try{
+    let data = await BrunchesModel.countDocuments(perPage);
+    console.log(data);
+    
+    res.json({count:data,pages:Math.ceil(data/perPage)})
+  }
+  catch(err){
+    console.log(err);
+    res.status(502).json({err})
+  }
+})
   // TODO: need to add auth of admin
   router.post("/" ,authAdmin, async(req,res) => {
     let validBody = validateBrunches(req.body);
@@ -78,7 +99,7 @@ router.get("/", async(req,res) => {
       res.status(502).json({err})
     }
   })
-  
+
   router.delete("/:id",authAdmin, async(req,res) => {
     try{
       let id = req.params.id;

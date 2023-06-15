@@ -6,6 +6,9 @@ const ContactSchema = new mongoose.Schema({
     phone:String,
     email:String,
     message:String,
+    status: {
+        type: String, default: "בטיפול"
+      },
     date_created: {
         type: Date, default: Date.now
     }
@@ -20,6 +23,12 @@ exports.validateContact = (_reqBody) => {
         phone: Joi.string().min(9).max(20).required(),
         message: Joi.string().min(1).max(2000).required()
        
+    })
+    return joiSchema.validate(_reqBody);
+}
+exports.validateContactRegistered = (_reqBody) => {
+    let joiSchema = Joi.object({
+        message: Joi.string().min(1).max(2000).required()     
     })
     return joiSchema.validate(_reqBody);
 }

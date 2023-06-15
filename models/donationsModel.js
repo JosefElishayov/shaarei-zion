@@ -15,11 +15,10 @@ exports.DonationsModel = mongoose.model("donations",donationsSchema)
 
 exports.validateDonation = (_reqBody) => {
 let joiSchema = Joi.object({
-Donations_Name:Joi.string().min(2).max(100).required(),
+donations_Name:Joi.string().min(2).max(100).required(),
 info:Joi.string().min(2).max(1500).required(),
-price:Joi.number().min(1).max(100).required(),
+price:Joi.number().min(1).max(100000).required(),
 img_url:Joi.string().min(1).max(999).allow(null,""),
-date_Created:Joi.date().min(1).max(999).required(),
 })
 return joiSchema.validate(_reqBody)
 }

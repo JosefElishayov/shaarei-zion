@@ -9,9 +9,4 @@ exports.config = {
     token_secret:process.env.TOKEN_SECRET,
     db_url:""
   }
-  exports.cloudinary={
-    clode_nane:"dxaafqtj9",
-    API_KAI:"767889945327742",
-    API_SECRET:"vCwnlw4FHeOE5d-1EQwx34bfsfc",
-    
-  }
+  
