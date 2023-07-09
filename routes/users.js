@@ -34,7 +34,7 @@ router.get("/usersList",authAdmin, async(req,res) => {
   }
 })
 
-// מחזיר למשתמש את הפרטים שלו
+
 router.get("/userInfo", auth , async(req,res) => {
   try{
     let user = await UserModel.findOne({_id:req.tokenData._id},{password:0});
