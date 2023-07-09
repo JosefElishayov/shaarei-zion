@@ -1,32 +1,27 @@
 const express = require("express");
 const { auth, authAdmin } = require("../middlewares/auth");
-const { validateDonPurchase, DonPurchaseModel, validateDonPurchaseInside, validateDonPurchaseOut } = require("../models/donPurchasModel");
-
+const { DonPurchaseModel, validateDonPurchaseInside, validateDonPurchaseOut } = require("../models/donPurchasModel");
 const { UserModel } = require("../models/userModel");
-
-
 const router = express.Router();
-
-
 router.get("/", async(req,res) => {
-    let perPage = Math.min(req.query.perPage, 20) || 5;
+    let perPage = Math.min(req.query.perPage, 20) || 10;
     let page = req.query.page - 1 || 0;
     let sort = req.query.sort || "_id"
-    // אם שווה יס יציג מהקטן לגדול ובברירת מחדל מהגדול לקטן
     let reverse = req.query.reverse == "yes" ? 1 : -1;
     let user_id =req.query.user_id
+    const search = req.query.s;
     try {
       let findDb={};
       if(user_id){findDb={user_id}}
+      else if(search){
+        const searchExp = new RegExp(search,"i")
+        findDb = {$or:[{user_name:searchExp},{comments:searchExp},{phone:searchExp},{email:searchExp},{price:searchExp}],       
+    }
+      }
       let data = await DonPurchaseModel
         .find(findDb)
-        // מגביל את כמות הרשומות המצוגות בשאילתא
         .limit(perPage)
-        // skip -> כמה רשומות לדלג
         .skip(page * perPage)
-        // sort:{prop} 1 -> מהקטן לגדול , and -1 מהגדול לקטן
-        // [] -> אומר לו לאסוף את המשתנה בסורט ולא לקחת אותו כמאפיין
-        // reverse -> אחד או מינוס אחד
         .sort({ [sort]: reverse })
       res.json(data);
     }
@@ -35,7 +30,17 @@ router.get("/", async(req,res) => {
       res.status(502).json({ err })
     }
   })
-
+  router.get("/count", async(req,res) => {
+    let perPage = Math.min(req.query.perPage, 20) || 10;
+    try{
+      let data = await DonPurchaseModel.countDocuments(perPage);
+      res.json({count:data,pages:Math.ceil(data/perPage)})
+    }
+    catch(err){
+      console.log(err);
+      res.status(502).json({err})
+    }
+  })
 router.post("/", auth, async (req, res) => {
     let validBody = validateDonPurchaseInside(req.body);
     if (validBody.error) {
@@ -47,10 +52,8 @@ router.post("/", auth, async (req, res) => {
         purchase.user_id = user._id;
         purchase.user_name = user.name;
         purchase.phone = user.phone;
-        purchase.email = user.email;
+        purchase.email = user.email;  
       
-        purchase.user_name = user.name;
-        purchase.token_id="1111";
         await purchase.save()
         res.status(201).json(purchase);
     }
@@ -74,6 +77,17 @@ router.post("/out", async (req, res) => {
       res.status(502).json({ err })
   }
 })
+router.patch("/paid/:id/:status", async (req, res) => {
+  try {
+    const id = req.params.id;
+    let paid = req.params.status;
+    const data = await DonPurchaseModel.updateOne({ _id: id }, { status: paid });
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+    res.status(502).json({ err });
+  }
+});
 router.delete("/:id", authAdmin, async (req, res) => {
     try {
         let id = req.params.id;
@@ -87,3 +101,5 @@ router.delete("/:id", authAdmin, async (req, res) => {
 })
 
 module.exports = router;
+// { km: { $eq: Number(searchT) } }
+// { 'tenant_name.name': sExp },

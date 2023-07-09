@@ -6,6 +6,8 @@ const donationR=require("./donations");
 const helpedsR=require("./helpeds");
 const donPurchasesR=require("./donPurchases");
 const uploadR = require("./upload");
+const searchR = require("./search");
+const countR = require("./count");
 
 
 
@@ -19,6 +21,8 @@ exports.routesInit = (app) => {
   app.use("/helpeds",helpedsR);
   app.use("/purchase",donPurchasesR);
   app.use("/upload",uploadR);
+  app.use("/search",searchR);
+  app.use("/count",countR);
   
 
 }

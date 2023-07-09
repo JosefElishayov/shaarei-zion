@@ -9,11 +9,11 @@ exports.auth = (req, res, next) => {
     return res.status(401).json({ msg: "You must send token in the header to this endpoint" })
   }
   try {
-    // בודק אם הטוקן תקין או בתקוף
+   
     let decodeToken = jwt.verify(token, config.token_secret);
-    // req -> יהיה זהה בכל הפונקציות שמורשרות באותו ראוטר
+   
     req.tokenData = decodeToken;
-    // לעבור לפונקציה הבאה בשרשור
+ 
     next();
   }
   catch (err) {

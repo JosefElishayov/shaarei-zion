@@ -23,7 +23,7 @@ router.get("/usersList",authAdmin, async(req,res) => {
       findDb = {$or:[{name:searchExp},{email:searchExp},{phone:searchExp},{address:searchExp},{role:searchExp}]}
     }
     let data = await UserModel
-      .find(findDb)
+      .find(findDb,{password:0})
       .limit(perPage)
       .skip(page * perPage)
       .sort({ [sort]: reverse })
@@ -73,12 +73,9 @@ router.post("/", async(req,res) => {
     return res.status(400).json(validBody.error.details);
   }
   try{
-    let user = new UserModel(req.body);
-    // להצפין את הסיסמא במסד עם מודול ביקריפט
-    // 10 -> רמת הצפנה
+    let user = new UserModel(req.body)
     user.password = await bcrypt.hash(user.password, 10);
     await user.save();
-    // להסתיר את ההצפנה לצד לקוח
     user.password = "***"
     res.json(user);
   }
@@ -117,6 +114,19 @@ router.patch("/changeEdit/:id/:editBranch", authAdmin , async(req,res) => {
     res.status(502).json({err})
   }
 })
+router.patch("/changePass/:id/:password", async (req, res) => {
+  try {
+    const id = req.params.id;
+    let pass = req.params.password;
+   pass = await bcrypt.hash(pass, 10);
+    const data = await UserModel.updateOne({ _id: id }, { password: pass });
+    // data.password = "***"
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+    res.status(502).json({ err });
+  }
+});
   router.put("/:id",auth, async(req,res) => {
     let validBody = validateEditUser(req.body);
     if(validBody.error){
@@ -132,18 +142,16 @@ router.patch("/changeEdit/:id/:editBranch", authAdmin , async(req,res) => {
       res.status(502).json({err})
     }
   })
-router.post("/logIn", async(req,res) => {
+router.post("/login", async(req,res) => {
   let validBody = validateLogin(req.body);
   if(validBody.error){
     return res.status(400).json(validBody.error.details);
   }
   try{
-    // לבדוק אם בכלל יש רשומה עם המייל שנשלח
     let user = await UserModel.findOne({email:req.body.email})
     if(!user){
       return res.status(401).json({msg:"Email Worng."})
     }
-    // לבדוק אם הרשומה שנמצאה הסיסמא המוצפנות בתוכה מתאימה 
     let validPassword = await bcrypt.compare(req.body.password, user.password);
     if(!validPassword){
       return res.status(401).json({msg:"Password Worng."})

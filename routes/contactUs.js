@@ -49,7 +49,7 @@ router.post("/registered",auth, async(req,res) => {
     }
     try{
       let contact = new ContactModel(req.body);
-      let user = await UserModel.findOne({ _id: req.tokenData._id })
+      let user = await UserModel.findOne({_id: req.tokenData._id })
       contact.name = user.name;
       contact.phone = user.phone;
       contact.email = user.email;
