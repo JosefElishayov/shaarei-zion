@@ -113,7 +113,7 @@ router.patch("/changeEdit/:id/:editBranch", authAdmin , async(req,res) => {
     res.status(502).json({err})
   }
 })
-router.patch("/changePass/:id/:password", async (req, res) => {
+router.patch("/changePass/:id/:password", auth,async (req, res) => {
   try {
     const id = req.params.id;
     let pass = req.params.password;
@@ -141,7 +141,7 @@ router.patch("/changePass/:id/:password", async (req, res) => {
       res.status(502).json({err})
     }
   })
-router.post("/login", async(req,res) => {
+router.post("/login",auth, async(req,res) => {
   let validBody = validateLogin(req.body);
   if(validBody.error){
     return res.status(400).json(validBody.error.details);

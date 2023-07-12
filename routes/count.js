@@ -2,9 +2,10 @@ const express = require("express");
 const { DonPurchaseModel } = require("../models/donPurchasModel");
 const { BrunchesModel } = require("../models/brancheModel");
 const { UserModel } = require("../models/userModel");
+const { authAdmin } = require("../middlewares/auth");
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/",authAdmin, async (req, res) => {
 
     try {
         const paid = "שולם"

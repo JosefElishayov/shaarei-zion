@@ -3,7 +3,7 @@ const { auth, authAdmin } = require("../middlewares/auth");
 const { DonPurchaseModel, validateDonPurchaseInside, validateDonPurchaseOut } = require("../models/donPurchasModel");
 const { UserModel } = require("../models/userModel");
 const router = express.Router();
-router.get("/", async(req,res) => {
+router.get("/",auth, async(req,res) => {
     let perPage = Math.min(req.query.perPage, 20) || 10;
     let page = req.query.page - 1 || 0;
     let sort = req.query.sort || "_id"
@@ -15,7 +15,7 @@ router.get("/", async(req,res) => {
       if(user_id){findDb={user_id}}
       else if(search){
         const searchExp = new RegExp(search,"i")
-        findDb = {$or:[{user_name:searchExp},{comments:searchExp},{phone:searchExp},{email:searchExp},{price:searchExp}],       
+        findDb = {$or:[{user_name:searchExp},{comments:searchExp},{phone:searchExp},{email:searchExp}],       
     }
       }
       let data = await DonPurchaseModel
@@ -30,7 +30,7 @@ router.get("/", async(req,res) => {
       res.status(502).json({ err })
     }
   })
-  router.get("/count", async(req,res) => {
+  router.get("/count",  async(req,res) => {
     let perPage = Math.min(req.query.perPage, 20) || 10;
     try{
       let data = await DonPurchaseModel.countDocuments(perPage);
@@ -77,7 +77,7 @@ router.post("/out", async (req, res) => {
       res.status(502).json({ err })
   }
 })
-router.patch("/paid/:id/:status", async (req, res) => {
+router.patch("/paid/:id/:status",authAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     let paid = req.params.status;
