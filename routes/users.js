@@ -140,7 +140,7 @@ router.patch("/changePass/:id/:password", auth,async (req, res) => {
       res.status(502).json({err})
     }
   })
-router.post("/login",auth, async(req,res) => {
+router.post("/login", async(req,res) => {
   let validBody = validateLogin(req.body);
   if(validBody.error){
     return res.status(400).json(validBody.error.details);
