@@ -119,7 +119,6 @@ router.patch("/changePass/:id/:password", auth,async (req, res) => {
     let pass = req.params.password;
    pass = await bcrypt.hash(pass, 10);
     const data = await UserModel.updateOne({ _id: id }, { password: pass });
-    // data.password = "***"
     res.json(data);
   } catch (err) {
     console.log(err);
