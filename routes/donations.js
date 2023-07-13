@@ -56,7 +56,7 @@ router.get("/", async(req,res) => {
       res.status(502).json({err})
     }
   })
-  router.get("/single/edit/:id", async(req,res) => {
+  router.get("/single/edit/:id",authAdmin, async(req,res) => {
     try{
       let data = await DonationsModel.findOne({_id:req.params.id})
       res.json(data);
