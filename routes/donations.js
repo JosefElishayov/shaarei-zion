@@ -19,7 +19,7 @@ router.get("/", async(req,res) => {
       }
       let data = await DonationsModel
         .find(findDb)
-        // מגביל את כמות הרשומות המצוגות בשאילתא
+    
         .limit(perPage)
         // skip -> כמה רשומות לדלג
         .skip(page * perPage)
