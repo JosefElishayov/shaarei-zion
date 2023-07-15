@@ -77,7 +77,7 @@ router.post("/out", async (req, res) => {
       res.status(502).json({ err })
   }
 })
-router.patch("/paid/:id/:status",authAdmin, async (req, res) => {
+router.patch("/paid/:id/:status", async (req, res) => {
   try {
     const id = req.params.id;
     let paid = req.params.status;
